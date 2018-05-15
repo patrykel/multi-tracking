@@ -139,7 +139,7 @@ DemoAnalyzer::point_logs(std::vector<RPRecognizedPatterns::Line> &uLines, std::v
   std::vector<GeometryUtility::PossibleHitPoint> possibleHits;
   geometryUtility->getPossibleHitPoint(uLines[0], vLines[0], possibleHits, oss);
 
-  hit_points_log(possibleHits, oss);
+  //hit_points_log(possibleHits, oss);
 
 
 

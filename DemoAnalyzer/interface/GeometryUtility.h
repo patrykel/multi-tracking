@@ -14,8 +14,10 @@
 #define DemoAnalyzer_GeometryUtility
 
 #include "RecoTotemRP/RPRecoDataFormats/interface/RPRecognizedPatterns.h"
+#include "DataFormats/TotemRPDataTypes/interface/RPRecoHit.h"
 #include <iostream>
 #include <sstream>
+
 
 class GeometryUtility {
 
@@ -28,9 +30,25 @@ public:
 
     
     struct PossibleHitPoint{
-        double x;   // [mm] global coordinate
-        double y;   // [mm] global coordinate
-        double z;   // [mm] global coordinate
+      double x;   // [mm] global coordinate
+      double y;   // [mm] global coordinate
+      double z;   // [mm] global coordinate
+    };
+
+    struct Point{
+      double x;   
+      double y;   
+      double z;
+    };
+
+    struct Direction{
+      double dx;
+      double dy;
+    };
+
+    struct Vector2D{
+      double x;
+      double y;
     };
 
     void getPossibleHitPoint(RPRecognizedPatterns::Line uLine, RPRecognizedPatterns::Line vLine, std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, std::ostringstream &oss);
@@ -41,9 +59,12 @@ public:
     double getDx(int armId, int stationId, int rpId, int siliconId);
     double getDy(int armId, int stationId, int rpId, int siliconId);
 
-    int getIdx(int armId, int stationId, int rpId, int siliconId);
-
 // private:
+
+    int getIdx(int armId, int stationId, int rpId, int siliconId);
+    GeometryUtility::Point getCenter(RPRecoHit recoHit);
+    GeometryUtility::Direction getReadoutDirection(RPRecoHit recoHit);
+    GeometryUtility::Direction getPerpendicularDirection(GeometryUtility::Direction direction);
 
     double x[240] = {-0.514, 0.514, -0.514, 0.514, -0.514, 0.514, -0.514, 0.514, -0.514, 0.514, 0.514, -0.514, 0.514,
                   -0.514, 0.514, -0.514, 0.514, -0.514, 0.514, -0.514, 57.140, 57.140, 57.140, 57.140, 57.140, 57.140,
