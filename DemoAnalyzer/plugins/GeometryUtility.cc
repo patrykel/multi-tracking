@@ -16,9 +16,7 @@
 
 
 
-
-GeometryUtility::Point 
-GeometryUtility::getCenter(RPRecoHit recoHit){
+GeometryUtility::Point GeometryUtility::getCenter(RPRecoHit recoHit){
   unsigned int rawId = recoHit.DetId();
 
   unsigned int armId     = (rawId >> 24) & 0b0001;
@@ -35,8 +33,7 @@ GeometryUtility::getCenter(RPRecoHit recoHit){
   return center;
 }
 
-GeometryUtility::Direction 
-GeometryUtility::getReadoutDirection(RPRecoHit recoHit){
+GeometryUtility::Direction GeometryUtility::getReadoutDirection(RPRecoHit recoHit){
   unsigned int rawId = recoHit.DetId();
 
   unsigned int armId     = (rawId >> 24) & 0b0001;
@@ -47,15 +44,14 @@ GeometryUtility::getReadoutDirection(RPRecoHit recoHit){
   double dx = getDx(armId, stationId, rpId, siliconId);
   double dy = getDy(armId, stationId, rpId, siliconId);
 
-  GeometryUtility::Direction readoutDirection = {dx, dy};
+  Direction readoutDirection = {dx, dy};
 
   return readoutDirection;
 }
 
-GeometryUtility::Direction 
-GeometryUtility::getPerpendicularDirection(GeometryUtility::Direction direction){
+GeometryUtility::Direction GeometryUtility::getPerpendicularDirection(Direction direction){
   
-  GeometryUtility::Direction perpendicularDirection = {
+  Direction perpendicularDirection = {
     -direction.dy, 
     direction.dx
   };
@@ -115,20 +111,20 @@ void GeometryUtility::getPossibleHitPoint(RPRecognizedPatterns::Line uLine, RPRe
       RPRecoHit v_hit = vLine.hits[vh_i]; 
 
       // Counting rzut center na kierunek u / v
-      GeometryUtility::Direction uDirection = getReadoutDirection(u_hit);
-      GeometryUtility::Direction vDirection = getReadoutDirection(v_hit);
+      Direction uDirection = getReadoutDirection(u_hit);
+      Direction vDirection = getReadoutDirection(v_hit);
 
-      GeometryUtility::Direction uPerDirection = getPerpendicularDirection(uDirection);     
-      GeometryUtility::Direction vPerDirection = getPerpendicularDirection(vDirection);     
+      Direction uPerDirection = getPerpendicularDirection(uDirection);     
+      Direction vPerDirection = getPerpendicularDirection(vDirection);     
 
-      GeometryUtility::Point uCenter = getCenter(u_hit); 
-      GeometryUtility::Point vCenter = getCenter(v_hit); 
+      Point uCenter = getCenter(u_hit); 
+      Point vCenter = getCenter(v_hit); 
 
-      GeometryUtility::Point u_p = {
+      Point u_p = {
         uCenter.x + uPerDirection.dx * u_hit.Position(),
         uCenter.y + uPerDirection.dy * u_hit.Position()
       };
-      GeometryUtility::Point v_p = {
+      Point v_p = {
         vCenter.x + vPerDirection.dx * v_hit.Position(),
         vCenter.y + vPerDirection.dy * v_hit.Position()
       };
@@ -143,9 +139,9 @@ void GeometryUtility::getPossibleHitPoint(RPRecognizedPatterns::Line uLine, RPRe
 
       double k_u = (c1 * b2 - b1 * c2) / (a1 * b2 - b1 * a2);
 
-      // GeometryUtility::Vector2D centerShift = getCenterShift(uCenter, vCenter);
+      // Vector2D centerShift = getCenterShift(uCenter, vCenter);
 
-      GeometryUtility::PossibleHitPoint php = {
+      PossibleHitPoint php = {
         u_p.x + k_u * uDirection.dx,    // x
         u_p.y + k_u * uDirection.dy,    // y 
         (uCenter.z + vCenter.z) / 2.0  // z
