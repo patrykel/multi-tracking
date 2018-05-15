@@ -1,3 +1,5 @@
+
+
 /****************************************************************************
  *
  * This is a part of TOTEM offline software.
@@ -17,6 +19,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TotemRPDataTypes/interface/RPRecoHit.h"
+#include "Demo/DemoAnalyzer/interface/GeometryUtility.h"
 #include <memory>
 #include <vector>
 #include <fstream>
@@ -27,6 +30,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "TH1.h"
+
 
 
 class DemoAnalyzer : public edm::EDAnalyzer {
@@ -47,24 +51,21 @@ class DemoAnalyzer : public edm::EDAnalyzer {
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;    // method called when starting to processes a luminosity block
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;      // method called when ending the processing of a luminosity block
 
+      void hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss);
+      void lines_log(std::vector<RPRecognizedPatterns::Line> &lines, std::ostringstream &oss, std::string &prefix);
+      void hit_points_log(std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, std::ostringstream &oss);
+      void point_logs(std::vector<RPRecognizedPatterns::Line> &uLines, std::vector<RPRecognizedPatterns::Line> &vLines, std::ostringstream &oss);
+
       // ----------member data ---------------------------
       unsigned int minTracks_;
       unsigned int max_uLines;
       unsigned int max_vLines;
       
       TH1D *vLinesHisto, *uLinesHisto;
-      GeometryUtility *geometryUtility; 
+      GeometryUtility *geometryUtility;
 };
 
 unsigned int armId(unsigned int detId);
 unsigned int stationId(unsigned int detId);
 unsigned int rpId(unsigned int detId);
 unsigned int siliconId(unsigned int detId);
-
-void hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss);
-void lines_log(std::vector<RPRecognizedPatterns::Line> &lines, std::ostringstream &oss, std::string &prefix);
-void hit_points_log(std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, std::ostringstream &oss);
-void point_logs(std::vector<RPRecognizedPatterns::Line> &uLines, std::vector<RPRecognizedPatterns::Line> &vLines, std::ostringstream &oss);
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(DemoAnalyzer);

@@ -16,118 +16,28 @@
 //
 //
 
-// #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
-// FROM ANA
-// system include files
-#include <memory>
-#include <vector>
-#include <fstream>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-// #include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoTotemRP/RPRecoDataFormats/interface/RPRecognizedPatternsCollection.h"
-#include "RecoTotemRP/RPRecoDataFormats/interface/RPRecognizedPatterns.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Demo/DemoAnalyzer/interface/DemoAnalyzer.h"
 
 
-// MY HAPPY HISTOGRAMs:
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h" 
-#include "TH1.h"
-
-
-// KUBA WORKS HARD
-#include <sstream>
-#include <string>
-#include "DataFormats/TotemRPDataTypes/interface/RPRecoHit.h"
-
-//
-// class declaration
-//
-
-class DemoAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit DemoAnalyzer(const edm::ParameterSet&);
-      ~DemoAnalyzer();
-
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-
-   private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
-      // ----------member data ---------------------------
-      unsigned int minTracks_;
-      unsigned int max_uLines;
-      unsigned int max_vLines;
-      
-      TH1D *vLinesHisto, *uLinesHisto;
-      // TH1D *uLinesHisto;
-
-
-
-      GeometryUtility *geometryUtility; 
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& iConfig) :
 minTracks_(iConfig.getUntrackedParameter<unsigned int>("minTracks",0))
 {
-   //now do what ever initialization is needed
+    //now do what ever initialization is needed
     max_uLines = max_vLines = 0;
    
-   edm::Service<TFileService> fs;
+    edm::Service<TFileService> fs;
    
-   // just for testing:
-   vLinesHisto = fs->make<TH1D>("vLines" , "VLINES" , 50 , 0 , 50 ); // what should be the first parameter????
-   uLinesHisto = fs->make<TH1D>("uLines" , "ULINES" , 50 , 0 , 50 ); // what should be the first parameter????
+    // just for testing:
+    vLinesHisto = fs->make<TH1D>("vLines" , "VLINES" , 50 , 0 , 50 ); // what should be the first parameter????
+    uLinesHisto = fs->make<TH1D>("uLines" , "ULINES" , 50 , 0 , 50 ); // what should be the first parameter????
 
-   geometryUtility = new GeometryUtility();
+    geometryUtility = new GeometryUtility();
 }
 
 
-DemoAnalyzer::~DemoAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+DemoAnalyzer::~DemoAnalyzer(){
 }
-
-
-//
-// member functions
-//
-
 
 /*
 
@@ -159,7 +69,8 @@ unsigned int siliconId(unsigned int detId){
 }
 
 
-void hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss){
+void 
+DemoAnalyzer::hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss){
   unsigned int totalHitNumber = hits.size();
   oss << "\t\t Related hits number: " << totalHitNumber << "\n";
   RPRecoHit curr_hit;
@@ -176,7 +87,8 @@ void hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss){
   }
 }
 
-void lines_log(std::vector<RPRecognizedPatterns::Line> &lines, std::ostringstream &oss, std::string &prefix){
+void 
+DemoAnalyzer::lines_log(std::vector<RPRecognizedPatterns::Line> &lines, std::ostringstream &oss, std::string &prefix){
   unsigned int totalLineNumber = lines.size();
   oss << prefix << "Lines:\t" << totalLineNumber << "\n";
   RPRecognizedPatterns::Line curr_line;
@@ -207,22 +119,25 @@ vline:
 */
 
 
-void hit_points_log(std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, std::ostringstream &oss){
-  oss << "Hits: " << "\n";
+void 
+DemoAnalyzer::hit_points_log(std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, std::ostringstream &oss){
+  oss << "Hits (detector centers): " << "\n";
 
   GeometryUtility::PossibleHitPoint point;
   for(unsigned int i = 0; i < possibleHits.size(); i++){
+    point = possibleHits[i];
     oss << "\tPoint[" << i << "]: \tx = " << point.x << "\ty = " << point.y <<  "\tz = " << point.z << "\n";
   }
 }
 
-void point_logs(std::vector<RPRecognizedPatterns::Line> &uLines, std::vector<RPRecognizedPatterns::Line> &vLines, std::ostringstream &oss){
-  int uLinesNumber = uLines.size();
-  int vLinesNumber = vLines.size();
+void 
+DemoAnalyzer::point_logs(std::vector<RPRecognizedPatterns::Line> &uLines, std::vector<RPRecognizedPatterns::Line> &vLines, std::ostringstream &oss){
+  //int uLinesNumber = uLines.size();
+  //int vLinesNumber = vLines.size();
 
   // kontenerek na possible hits --> wypelniamy go dzieki geometryUtility
   std::vector<GeometryUtility::PossibleHitPoint> possibleHits;
-  geometryUtility->get_possible_hit_point(uLines[0], vLines[0], possibleHits);
+  geometryUtility->getPossibleHitPoint(uLines[0], vLines[0], possibleHits, oss);
 
   hit_points_log(possibleHits, oss);
 
@@ -294,6 +209,9 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       oss << "RP = " << rp << "\t arm = " << arm << "\t rpIdx = " << rpIdx << "\n";
 
+      // logging crossing points
+      point_logs(it.second.uLines, it.second.vLines, oss);
+
       string prefix = "u";
       lines_log(it.second.uLines, oss, prefix);
 
@@ -354,6 +272,45 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 DemoAnalyzer::beginJob()
 {
+    // TUTAJ ZROBIE C++ teścik na to czy dobrze działa geometryUtility
+
+    std::ostringstream oss;
+
+    oss << "ID\tx\ty\tz\tdx\tdy\n";
+    for(int i = 0; i < 240; i++){
+      oss << i << "\t" << geometryUtility -> x[i] << "\t"; 
+      oss << geometryUtility -> y[i] << "\t";
+      oss << geometryUtility -> z[i] << "\t";
+      oss << geometryUtility -> dx[i] << "\t";
+      oss << geometryUtility -> dy[i] << "\n";
+    }
+
+    oss << "\n";
+
+    oss << "arm\tsta\trp\tdet\tidx\t\tx\ty\tz\n";
+
+    for(int a_i = 0; a_i < 2; a_i++){
+      for(int s_i = 0; s_i < 3; s_i += 2){
+        for(int r_i = 0; r_i < 6; r_i++){
+          for(int d_i = 0; d_i < 10; d_i++){
+            oss << a_i << "\t";
+            oss << s_i << "\t";
+            oss << r_i << "\t";
+            oss << d_i << "\t";
+            oss << geometryUtility -> getIdx(a_i, s_i, r_i, d_i) << "\t\t";
+            oss << geometryUtility -> getX(a_i, s_i, r_i, d_i) << "\t";
+            oss << geometryUtility -> getY(a_i, s_i, r_i, d_i) << "\t";
+            oss << geometryUtility -> getZ(a_i, s_i, r_i, d_i) << "\n";
+          }
+        }
+      }
+    }
+
+
+
+    std::string text_log = oss.str();
+    edm::LogInfo("Demo") << text_log;
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

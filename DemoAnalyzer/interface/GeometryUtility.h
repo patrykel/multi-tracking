@@ -1,3 +1,5 @@
+
+
 /****************************************************************************
  *
  * This is a part of TOTEM offline software.
@@ -11,8 +13,9 @@
 #ifndef DemoAnalyzer_GeometryUtility
 #define DemoAnalyzer_GeometryUtility
 
+#include "RecoTotemRP/RPRecoDataFormats/interface/RPRecognizedPatterns.h"
 #include <iostream>
-
+#include <sstream>
 
 class GeometryUtility {
 
@@ -30,7 +33,7 @@ public:
         double z;   // [mm] global coordinate
     };
 
-    void getPossibleHitPoint(RPRecognizedPatterns::Line uLine, RPRecognizedPatterns::Line vLine, std::vector<GeometryUtility::PossibleHitPoint> &possibleHits);
+    void getPossibleHitPoint(RPRecognizedPatterns::Line uLine, RPRecognizedPatterns::Line vLine, std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, std::ostringstream &oss);
 
     double getX(int armId, int stationId, int rpId, int siliconId);
     double getY(int armId, int stationId, int rpId, int siliconId);
@@ -38,9 +41,9 @@ public:
     double getDx(int armId, int stationId, int rpId, int siliconId);
     double getDy(int armId, int stationId, int rpId, int siliconId);
 
-private:
-
     int getIdx(int armId, int stationId, int rpId, int siliconId);
+
+// private:
 
     double x[240] = {-0.514, 0.514, -0.514, 0.514, -0.514, 0.514, -0.514, 0.514, -0.514, 0.514, 0.514, -0.514, 0.514,
                   -0.514, 0.514, -0.514, 0.514, -0.514, 0.514, -0.514, 57.140, 57.140, 57.140, 57.140, 57.140, 57.140,
