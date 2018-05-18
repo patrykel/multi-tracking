@@ -137,28 +137,14 @@ DemoAnalyzer::point_logs(std::vector<RPRecognizedPatterns::Line> &uLines, std::v
 
   // kontenerek na possible hits --> wypelniamy go dzieki geometryUtility
   std::vector<GeometryUtility::PossibleHitPoint> possibleHits;
-  geometryUtility->getPossibleHitPoint(uLines[0], vLines[0], possibleHits, oss);
-
-  //hit_points_log(possibleHits, oss);
-
-
-
-  // for(int u_i = 0; u_i < uLinesNumber; u_i++){
-  //   for(int v_i = 0; v_i < vLinesNumber; v_i++){
-  //     // po perwsze tutaj bedzie wiele possible hit points....
-  //     // bo kazda uLine ma wiele hitow...
-  //     // wiec pasowaloby sie przeiterować po wszystkich mozliwych :)
-
-  //     for(int h_v_no = 0; h_v_no < vLines[v_i].hits.size(); h_v_no++){
-  //       // tutaj winno sie dodawać do wektorka ;)
-  //     }
-
-
-  //     GeometryUtility::PossibleHitPoint geometryUtility->get_possible_hit_point(uLines[u_i], vLines[v_i]){
-        
-  //     }
-  //   }
-  // } 
+  geometryUtility->getPossibleHitPoints(
+    uLines,
+    vLines,
+    1,              // uSiliconId
+    0,              // vSiliconId
+    possibleHits,
+    oss
+  );
 }
 
 

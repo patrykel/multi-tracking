@@ -51,7 +51,24 @@ public:
       double y;
     };
 
-    void getPossibleHitPoint(RPRecognizedPatterns::Line uLine, RPRecognizedPatterns::Line vLine, std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, std::ostringstream &oss);
+
+    // Point getCenter(RPRecoHit recoHit);
+    // Direction getReadoutDirection(RPRecoHit recoHit);
+    // Direction getPerpendicularDirection(GeometryUtility::Direction direction);
+
+    PossibleHitPoint getIntersection(RPRecoHit uHit, RPRecoHit vHit);
+
+    void getPossibleHitPoints(std::vector<RPRecognizedPatterns::Line> uLines, 
+      std::vector<RPRecognizedPatterns::Line> vLines,
+      unsigned int uSiliconNo,
+      unsigned int vSiliconNo,
+      std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, 
+      std::ostringstream &oss);
+
+    void getPossibleHitPoint(RPRecognizedPatterns::Line uLine, 
+      RPRecognizedPatterns::Line vLine, 
+      std::vector<GeometryUtility::PossibleHitPoint> &possibleHits, 
+      std::ostringstream &oss);
 
     double getX(int armId, int stationId, int rpId, int siliconId);
     double getY(int armId, int stationId, int rpId, int siliconId);
