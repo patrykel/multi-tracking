@@ -19,9 +19,8 @@
 
 #include "Demo/DemoAnalyzer/interface/DemoAnalyzer.h"
 
-
-DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& iConfig) :
-minTracks_(iConfig.getUntrackedParameter<unsigned int>("minTracks",0))
+DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& ps) :
+minTracks_(ps.getUntrackedParameter<unsigned int>("minTracks",0))
 {
     //now do what ever initialization is needed
     max_uLines = max_vLines = 0;
@@ -33,10 +32,79 @@ minTracks_(iConfig.getUntrackedParameter<unsigned int>("minTracks",0))
     uLinesHisto = fs->make<TH1D>("uLines" , "ULINES" , 50 , 0 , 50 ); // what should be the first parameter????
 
     geometryUtility = new GeometryUtility();
+
+    // CREATING CSV FILE TO DUMP ONE EVENT
+    std::string fillFileName = ps.getParameter<std::string>("fill_name");
+    write_to_file = 1;
+    if(write_to_file == 1){
+      oneEventFile.open(fillFileName + "_ev_11101.csv");
+      oneEventFile << "EventId,RPId,SiliconId,position,u/v,line_no\n";  
+    }
+
+    // CREATING FLAT ROOT FILE WITH FIELDS:
+    T->SetDirectory(f);
+    T->Branch("recoId", &recoId, "recoId/I");
+    T->Branch("eventId", &eventId, "eventId/I");
+    T->Branch("eventSize", &eventSize, "eventSize/I");
+    T->Branch("rpID", &rpID, "rpID/I");
+    T->Branch("arm", &arm, "arm/I");
+    T->Branch("groupId", &groupId, "groupId/I");
+
+    T->Branch("siliconID", &siliconID, "siliconID/I");
+    T->Branch("position", &position, "position/F");
+}
+
+
+void DemoAnalyzer::exportHitsFromLineToFFlatRoot(std::vector<RPRecognizedPatterns::Line> &lines){
+  for(auto& line: lines){
+    for(auto& hit: line.hits){
+      unsigned int rawDetId = hit.DetId();
+      siliconID = siliconId(rawDetId);
+      position = hit.Position();
+      T->Fill();
+    }
+  }
+}
+
+void DemoAnalyzer::exportToFlatRoot(const edm::Event &iEvent){
+  using namespace edm;
+  using namespace std;
+  Handle <RPRecognizedPatternsCollection> input;
+  iEvent.getByLabel("NonParallelTrackFinder", input);
+
+  for (auto it : *input) {
+    unsigned int rp = it.first;
+    unsigned int rpIdx = rp % 10;
+    unsigned int group = 0;
+
+    if (rpIdx == 0 || rpIdx == 4)
+      group = 1;
+    if (rpIdx == 1 || rpIdx == 5)
+      group = 2;
+    if (rpIdx == 2 || rpIdx == 3)
+      group = 3;
+
+    recoId  = reco;
+    eventId = iEvent.id().event();
+    eventSize = input->size();
+    rpID = rp;
+    arm  = rp/100;
+    groupId = group;
+
+    exportHitsFromLineToFFlatRoot(it.second.uLines);
+    exportHitsFromLineToFFlatRoot(it.second.vLines);
+  }
 }
 
 
 DemoAnalyzer::~DemoAnalyzer(){
+  if(write_to_file == 1){
+    oneEventFile.close();
+  }
+
+  T->Print();
+  f->Write();
+  delete f;
 }
 
 /*
@@ -52,25 +120,33 @@ FROM: DataFormats/TotemRPDetId/interface/TotRPDetId.h
 
 */
 
-unsigned int armId(unsigned int detId){
-  return (detId >> 24) & 0b0001;
+unsigned int armId(unsigned int rawDetId){
+  return (rawDetId >> 24) & 0b0001;
 }
 
-unsigned int stationId(unsigned int detId){
-  return (detId >> 22) & 0b0011;
+unsigned int stationId(unsigned int rawDetId){
+  return (rawDetId >> 22) & 0b0011;
 }
 
-unsigned int rpId(unsigned int detId){
-  return (detId >> 19) & 0b0111;
+unsigned int rpId(unsigned int rawDetId){
+  return (rawDetId >> 19) & 0b0111;
 }
 
-unsigned int siliconId(unsigned int detId){
-  return (detId >> 15) & 0b1111;
+unsigned int siliconId(unsigned int rawDetId){
+  return (rawDetId >> 15) & 0b1111;
+}
+
+unsigned int pureRpId(unsigned int rawDetId){
+  return armId(rawDetId) * 100 + stationId(rawDetId) * 10 + rpId(rawDetId);
+}
+
+unsigned int pureSiliconId(unsigned int rawDetId){
+  return pureRpId(rawDetId) * 10 + siliconId(rawDetId);
 }
 
 
 void 
-DemoAnalyzer::hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss){
+DemoAnalyzer::hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss, int eventId, unsigned int line_no, std::string &prefix){
   unsigned int totalHitNumber = hits.size();
   oss << "\t\t Related hits number: " << totalHitNumber << "\n";
   RPRecoHit curr_hit;
@@ -79,7 +155,17 @@ DemoAnalyzer::hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss){
     curr_hit = hits[hit_no];
     unsigned int rawDetId = curr_hit.DetId();
 
+    // CSV FILE STUFF
+    if(write_to_file == 1){    
+      oneEventFile  << eventId << "," 
+                    << armId(rawDetId) << stationId(rawDetId) << rpId(rawDetId) << ","
+                    << armId(rawDetId) << stationId(rawDetId) << rpId(rawDetId) << siliconId(rawDetId) << ","
+                    << curr_hit.Position() << ","
+                    << prefix << ","
+                    << line_no << "\n"; 
+    }
 
+    // LOGGING STUFF
     oss << "\t\t[ hit [" << hit_no << "] ] \tRPDetId: " << armId(rawDetId) << stationId(rawDetId) << rpId(rawDetId)
     << "\tSiliconId: " << siliconId(rawDetId) 
     << "\tposition (wrt to det center): " << curr_hit.Position() 
@@ -88,7 +174,7 @@ DemoAnalyzer::hits_log(std::vector<RPRecoHit> &hits, std::ostringstream &oss){
 }
 
 void 
-DemoAnalyzer::lines_log(std::vector<RPRecognizedPatterns::Line> &lines, std::ostringstream &oss, std::string &prefix){
+DemoAnalyzer::lines_log(std::vector<RPRecognizedPatterns::Line> &lines, std::ostringstream &oss, std::string &prefix, int eventId){
   unsigned int totalLineNumber = lines.size();
   oss << prefix << "Lines:\t" << totalLineNumber << "\n";
   RPRecognizedPatterns::Line curr_line;
@@ -96,7 +182,7 @@ DemoAnalyzer::lines_log(std::vector<RPRecognizedPatterns::Line> &lines, std::ost
   for(unsigned int line_no = 0; line_no < totalLineNumber; line_no++){
     curr_line = lines[line_no];
     oss << "\t[ "<< prefix << "line[" << line_no << "] ] \ta: " << curr_line.a << " [rad]\tb: " << curr_line.b << " [mm]\tw: " << curr_line.w << "\n" ;
-    hits_log(curr_line.hits, oss);
+    hits_log(curr_line.hits, oss, eventId, line_no, prefix);
   }
 }
 
@@ -173,6 +259,12 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   int input_count = 0;
 
+  int eventId = iEvent.id().event();
+  if(eventId == 11101){ 
+    exportToFlatRoot(iEvent);
+  }
+
+
   for (auto it : *input)
   {
     unsigned int rp = it.first;
@@ -190,21 +282,30 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     unsigned int vLinesNumber = it.second.vLines.size();
 
     // LOGGING
-    if(uLinesNumber > 1 && vLinesNumber > 1){
-      std::ostringstream oss;
+    // if(uLinesNumber == 2 && vLinesNumber == 2){
+    rps_in_event[eventId]++;
 
+
+    if(eventId == 11101){ 
+
+
+      std::ostringstream oss;
       oss << "RP = " << rp << "\t arm = " << arm << "\t rpIdx = " << rpIdx << "\n";
 
       // logging crossing points
       point_logs(it.second.uLines, it.second.vLines, oss);
 
+      // logging U/V lines
       string prefix = "u";
-      lines_log(it.second.uLines, oss, prefix);
+      lines_log(it.second.uLines, oss, prefix, eventId);
 
       prefix = "v";
-      lines_log(it.second.vLines, oss, prefix);
+      lines_log(it.second.vLines, oss, prefix, eventId);
 
-      oss << "\nInput count:\t" << input_count;
+      // logging REST
+      // oss << "\nInput count:\t" << input_count;
+      // oss << "\nEvent id = \t" << iEvent.id().event();
+
       std::string text_log = oss.str();
       LogInfo("Demo") << text_log;
     }
@@ -255,54 +356,69 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-DemoAnalyzer::beginJob()
-{
-    // TUTAJ ZROBIE C++ teścik na to czy dobrze działa geometryUtility
 
-    std::ostringstream oss;
+void printGeometryUtilityData(GeometryUtility *geometryUtility){
+  // TUTAJ ZROBIE C++ teścik na to czy dobrze działa geometryUtility
 
-    oss << "ID\tx\ty\tz\tdx\tdy\n";
-    for(int i = 0; i < 240; i++){
-      oss << i << "\t" << geometryUtility -> x[i] << "\t"; 
-      oss << geometryUtility -> y[i] << "\t";
-      oss << geometryUtility -> z[i] << "\t";
-      oss << geometryUtility -> dx[i] << "\t";
-      oss << geometryUtility -> dy[i] << "\n";
-    }
+  std::ostringstream oss;
 
-    oss << "\n";
+  oss << "ID\tx\ty\tz\tdx\tdy\n";
+  for(int i = 0; i < 240; i++){
+    oss << i << "\t" << geometryUtility -> x[i] << "\t"; 
+    oss << geometryUtility -> y[i] << "\t";
+    oss << geometryUtility -> z[i] << "\t";
+    oss << geometryUtility -> dx[i] << "\t";
+    oss << geometryUtility -> dy[i] << "\n";
+  }
 
-    oss << "arm\tsta\trp\tdet\tidx\t\tx\ty\tz\n";
+  oss << "\n";
 
-    for(int a_i = 0; a_i < 2; a_i++){
-      for(int s_i = 0; s_i < 3; s_i += 2){
-        for(int r_i = 0; r_i < 6; r_i++){
-          for(int d_i = 0; d_i < 10; d_i++){
-            oss << a_i << "\t";
-            oss << s_i << "\t";
-            oss << r_i << "\t";
-            oss << d_i << "\t";
-            oss << geometryUtility -> getIdx(a_i, s_i, r_i, d_i) << "\t\t";
-            oss << geometryUtility -> getX(a_i, s_i, r_i, d_i) << "\t";
-            oss << geometryUtility -> getY(a_i, s_i, r_i, d_i) << "\t";
-            oss << geometryUtility -> getZ(a_i, s_i, r_i, d_i) << "\n";
-          }
+  oss << "arm\tsta\trp\tdet\tidx\t\tx\ty\tz\n";
+
+  for(int a_i = 0; a_i < 2; a_i++){
+    for(int s_i = 0; s_i < 3; s_i += 2){
+      for(int r_i = 0; r_i < 6; r_i++){
+        for(int d_i = 0; d_i < 10; d_i++){
+          oss << a_i << "\t";
+          oss << s_i << "\t";
+          oss << r_i << "\t";
+          oss << d_i << "\t";
+          oss << geometryUtility -> getIdx(a_i, s_i, r_i, d_i) << "\t\t";
+          oss << geometryUtility -> getX(a_i, s_i, r_i, d_i) << "\t";
+          oss << geometryUtility -> getY(a_i, s_i, r_i, d_i) << "\t";
+          oss << geometryUtility -> getZ(a_i, s_i, r_i, d_i) << "\n";
         }
       }
     }
+  }
 
+  std::string text_log = oss.str();
+  edm::LogInfo("Demo") << text_log;
+}
 
+void 
+DemoAnalyzer::beginJob()
+{
 
-    std::string text_log = oss.str();
-    edm::LogInfo("Demo") << text_log;
+  // MyFile = new TFile("Event.root","NEW");
+  // if ( MyFile->IsOpen() ) printf("File opened successfully\n");
 
+  printGeometryUtilityData(geometryUtility);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 DemoAnalyzer::endJob() 
 {
+  delete MyFile;
+  // std::ostringstream oss;
+  
+  // for(int i=1; i<200001; i++){
+  //   oss << "Event\t" << i << "\trps: " << rps_in_event[i] << "\n";
+  // }
+  
+  // std::string text_log = oss.str();
+  // edm::LogInfo("Demo") << text_log;
 }
 
 // ------------ method called when starting to processes a run  ------------
