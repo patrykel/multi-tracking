@@ -319,8 +319,9 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     // FILLING HISTOGRAMS
-    vLinesHisto->Fill(vLinesNumber);
-    uLinesHisto->Fill(uLinesNumber);
+    
+    // vLinesHisto->Fill(vLinesNumber);
+    // uLinesHisto->Fill(uLinesNumber);
   
 
     if (!combineVerticalHorizontalRPs)
