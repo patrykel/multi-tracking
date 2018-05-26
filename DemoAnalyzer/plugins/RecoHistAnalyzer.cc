@@ -17,8 +17,6 @@ xlow_(ps.getUntrackedParameter<double>("xlow", 0.0)),
 xup_(ps.getUntrackedParameter<double>("xup", 50.0))
 {
     edm::Service<TFileService> fs;   
-    // vLinesHisto = fs->make<TH1D>("vLines" , "VLINES" , 50 , 0 , 50 );   // TH1D (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup)
-    // uLinesHisto = fs->make<TH1D>("uLines" , "ULINES" , 50 , 0 , 50 );
 
     vLinesHisto = fs->make<TH1D>("vLines" , "VLINES" , nbinsx_ , xlow_ , xup_ );   // TH1D (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup)
     uLinesHisto = fs->make<TH1D>("uLines" , "ULINES" , nbinsx_ , xlow_ , xup_ );

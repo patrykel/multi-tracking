@@ -16,15 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTotemRP/RPRecoDataFormats/interface/RPRecognizedPatternsCollection.h"
 #include "RecoTotemRP/RPRecoDataFormats/interface/RPRecognizedPatterns.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TotemRPDataTypes/interface/RPRecoHit.h"
-#include "Demo/DemoAnalyzer/interface/GeometryUtility.h"
-#include <memory>
-#include <vector>
-#include <fstream>
-#include <sstream>
-#include <string>
+
 
 // HISTOGRAMS
 #include "FWCore/ServiceRegistry/interface/Service.h"
