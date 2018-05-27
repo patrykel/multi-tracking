@@ -4,4 +4,6 @@ demo = cms.EDAnalyzer('DemoAnalyzer')
 
 recoHist = cms.EDAnalyzer('RecoHistAnalyzer')
 
+recoLogger = cms.EDAnalyzer('RecoLoggingAnalyzer')
+
 recoToFlatRoot = cms.EDAnalyzer('RecoToFlatRootAnalyzer')

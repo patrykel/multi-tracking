@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 # Specify the maximum events to simulate
-process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(20) )
+# process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(20) )
  
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -40,9 +40,11 @@ process.TFileService = cms.Service("TFileService",
                                    )
  
 process.recoToFlatRoot = cms.EDAnalyzer('RecoToFlatRootAnalyzer')
+process.recoLogger = cms.EDAnalyzer('RecoLoggingAnalyzer')
 
 process.p = cms.Path(
-    process.demo 
-    # process.recoHist * 
+    # process.recoLogger
+    # process.demo
+    process.recoHist 
     # process.recoToFlatRoot
   )

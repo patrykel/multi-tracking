@@ -1,22 +1,14 @@
-// -*- C++ -*-
-//
-// Package:    Demo/DemoAnalyzer
-// Class:      DemoAnalyzer
-// 
-/**\class DemoAnalyzer DemoAnalyzer.cc Demo/DemoAnalyzer/plugins/DemoAnalyzer.cc
 
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Juan Eduardo Ramirez Vargas
-//         Created:  Wed, 30 Dec 2015 22:36:50 GMT
-//
-//
+/****************************************************************************
+ *
+ * This is a part of TOTEM offline software.
+ * Authors:
+ *   Patryk Ławski (patryk.jakub.lawski@cern.ch, patryk.lawski@gmail.com)
+ *
+ ****************************************************************************/
 
 
+#include "Demo/DemoAnalyzer/interface/RecoLoggingAnalyzer.h"
 #include "Demo/DemoAnalyzer/interface/DemoAnalyzer.h"
 
 DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& ps) :
