@@ -8,7 +8,7 @@
  ****************************************************************************/
 
 
-#include "Demo/DemoAnalyzer/interface/RecoLoggingAnalyzer.h"
+
 #include "Demo/DemoAnalyzer/interface/DemoAnalyzer.h"
 
 DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& ps) :

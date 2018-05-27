@@ -7,3 +7,5 @@ recoHist = cms.EDAnalyzer('RecoHistAnalyzer')
 recoLogger = cms.EDAnalyzer('RecoLoggingAnalyzer')
 
 recoToFlatRoot = cms.EDAnalyzer('RecoToFlatRootAnalyzer')
+
+recoCSV = cms.EDAnalyzer('RecoToCSVAnalyzer')

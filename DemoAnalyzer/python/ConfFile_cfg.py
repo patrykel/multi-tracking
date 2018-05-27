@@ -4,7 +4,7 @@ process = cms.Process("Demo")
 
 # Specify the maximum events to simulate
 # process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(20) )
- 
+
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -23,7 +23,7 @@ process.source = cms.Source("PoolSource",
                                 # 'root://eosuser.cern.ch//eos/user/p/plawski/totem/data/offline/2015/90m/Reco/version2_resynch/4510/9985/reco_0.root',
                                 # 'root://eosuser.cern.ch//eos/user/p/plawski/totem/data/offline/2015/90m/Reco/version2_resynch/4510/9985/reco_1.root'
                                 'file:/afs/cern.ch/user/p/plawski/cmssw_7_0_4_src/reco_0.root'
-                                )
+                            )
                             )
 
 process.demo = cms.EDAnalyzer('DemoAnalyzer',
@@ -32,19 +32,24 @@ process.demo = cms.EDAnalyzer('DemoAnalyzer',
                               )
 
 process.recoHist = cms.EDAnalyzer('RecoHistAnalyzer',
-                                 minTracks=cms.untracked.uint32(0)
-                                 )
+                                  minTracks=cms.untracked.uint32(0)
+                                  )
 
 process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string('uvLines.root')
                                    )
- 
+
 process.recoToFlatRoot = cms.EDAnalyzer('RecoToFlatRootAnalyzer')
 process.recoLogger = cms.EDAnalyzer('RecoLoggingAnalyzer')
+
+process.recoCSV = cms.EDAnalyzer('RecoToCSVAnalyzer',
+                                 fill_name=cms.string('2015_10_17_fill4510')
+                                 )
 
 process.p = cms.Path(
     # process.recoLogger
     # process.demo
-    process.recoHist 
+    # process.recoHist 
     # process.recoToFlatRoot
-  )
+    process.recoCSV
+)
