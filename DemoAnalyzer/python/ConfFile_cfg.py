@@ -50,6 +50,6 @@ process.p = cms.Path(
     # process.recoLogger
     # process.demo
     # process.recoHist 
-    # process.recoToFlatRoot
-    process.recoCSV
+    process.recoToFlatRoot
+    # process.recoCSV
 )
