@@ -16,6 +16,46 @@
 #include <iomanip>
 
 
+
+void
+GeometryUtility::printGeometryUtilityData(){
+
+  std::ostringstream oss;
+
+  oss << "ID\tx\ty\tz\tdx\tdy\n";
+  for(int i = 0; i < 240; i++){
+    oss << i << "\t" << x[i] << "\t"; 
+    oss << y[i] << "\t";
+    oss << z[i] << "\t";
+    oss << dx[i] << "\t";
+    oss << dy[i] << "\n";
+  }
+
+  oss << "\n";
+
+  oss << "arm\tsta\trp\tdet\tidx\t\tx\ty\tz\n";
+
+  for(int a_i = 0; a_i < 2; a_i++){
+    for(int s_i = 0; s_i < 3; s_i += 2){
+      for(int r_i = 0; r_i < 6; r_i++){
+        for(int d_i = 0; d_i < 10; d_i++){
+          oss << a_i << "\t";
+          oss << s_i << "\t";
+          oss << r_i << "\t";
+          oss << d_i << "\t";
+          oss << getIdx(a_i, s_i, r_i, d_i) << "\t\t";
+          oss << getX(a_i, s_i, r_i, d_i) << "\t";
+          oss << getY(a_i, s_i, r_i, d_i) << "\t";
+          oss << getZ(a_i, s_i, r_i, d_i) << "\n";
+        }
+      }
+    }
+  }
+
+  std::string text_log = oss.str();
+  edm::LogInfo("Demo") << text_log;
+}
+
 GeometryUtility::Point GeometryUtility::getCenter(RPRecoHit recoHit) {
     unsigned int rawId = recoHit.DetId();
 

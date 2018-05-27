@@ -15,6 +15,7 @@
 
 #include "RecoTotemRP/RPRecoDataFormats/interface/RPRecognizedPatterns.h"
 #include "DataFormats/TotemRPDataTypes/interface/RPRecoHit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 
@@ -56,6 +57,7 @@ public:
     // Direction getReadoutDirection(RPRecoHit recoHit);
     // Direction getPerpendicularDirection(GeometryUtility::Direction direction);
 
+    void printGeometryUtilityData();
     PossibleHitPoint getIntersection(RPRecoHit uHit, RPRecoHit vHit);
 
     void getPossibleHitPoints(std::vector<RPRecognizedPatterns::Line> uLines, 

@@ -289,49 +289,10 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 
-void printGeometryUtilityData(GeometryUtility *geometryUtility){
-  // TUTAJ ZROBIE C++ teścik na to czy dobrze działa geometryUtility
-
-  std::ostringstream oss;
-
-  oss << "ID\tx\ty\tz\tdx\tdy\n";
-  for(int i = 0; i < 240; i++){
-    oss << i << "\t" << geometryUtility -> x[i] << "\t"; 
-    oss << geometryUtility -> y[i] << "\t";
-    oss << geometryUtility -> z[i] << "\t";
-    oss << geometryUtility -> dx[i] << "\t";
-    oss << geometryUtility -> dy[i] << "\n";
-  }
-
-  oss << "\n";
-
-  oss << "arm\tsta\trp\tdet\tidx\t\tx\ty\tz\n";
-
-  for(int a_i = 0; a_i < 2; a_i++){
-    for(int s_i = 0; s_i < 3; s_i += 2){
-      for(int r_i = 0; r_i < 6; r_i++){
-        for(int d_i = 0; d_i < 10; d_i++){
-          oss << a_i << "\t";
-          oss << s_i << "\t";
-          oss << r_i << "\t";
-          oss << d_i << "\t";
-          oss << geometryUtility -> getIdx(a_i, s_i, r_i, d_i) << "\t\t";
-          oss << geometryUtility -> getX(a_i, s_i, r_i, d_i) << "\t";
-          oss << geometryUtility -> getY(a_i, s_i, r_i, d_i) << "\t";
-          oss << geometryUtility -> getZ(a_i, s_i, r_i, d_i) << "\n";
-        }
-      }
-    }
-  }
-
-  std::string text_log = oss.str();
-  edm::LogInfo("Demo") << text_log;
-}
-
 void 
 DemoAnalyzer::beginJob()
 {
-  printGeometryUtilityData(geometryUtility);
+  geometryUtility -> printGeometryUtilityData();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
