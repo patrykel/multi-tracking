@@ -25,11 +25,6 @@ minTracks_(ps.getUntrackedParameter<unsigned int>("minTracks",0))
     //now do what ever initialization is needed
     max_uLines = max_vLines = 0;
    
-    edm::Service<TFileService> fs;
-   
-    // just for testing:
-    vLinesHisto = fs->make<TH1D>("vLines" , "VLINES" , 50 , 0 , 50 ); // what should be the first parameter????
-    uLinesHisto = fs->make<TH1D>("uLines" , "ULINES" , 50 , 0 , 50 ); // what should be the first parameter????
 
     geometryUtility = new GeometryUtility();
 
@@ -40,71 +35,14 @@ minTracks_(ps.getUntrackedParameter<unsigned int>("minTracks",0))
       oneEventFile.open(fillFileName + "_ev_11101.csv");
       oneEventFile << "EventId,RPId,SiliconId,position,u/v,line_no\n";  
     }
-
-    // CREATING FLAT ROOT FILE WITH FIELDS:
-    T->SetDirectory(f);
-    T->Branch("recoId", &recoId, "recoId/I");
-    T->Branch("eventId", &eventId, "eventId/I");
-    T->Branch("eventSize", &eventSize, "eventSize/I");
-    T->Branch("rpID", &rpID, "rpID/I");
-    T->Branch("arm", &arm, "arm/I");
-    T->Branch("groupId", &groupId, "groupId/I");
-
-    T->Branch("siliconID", &siliconID, "siliconID/I");
-    T->Branch("position", &position, "position/F");
 }
 
-
-void DemoAnalyzer::exportHitsFromLineToFFlatRoot(std::vector<RPRecognizedPatterns::Line> &lines){
-  for(auto& line: lines){
-    for(auto& hit: line.hits){
-      unsigned int rawDetId = hit.DetId();
-      siliconID = siliconId(rawDetId);
-      position = hit.Position();
-      T->Fill();
-    }
-  }
-}
-
-void DemoAnalyzer::exportToFlatRoot(const edm::Event &iEvent){
-  using namespace edm;
-  using namespace std;
-  Handle <RPRecognizedPatternsCollection> input;
-  iEvent.getByLabel("NonParallelTrackFinder", input);
-
-  for (auto it : *input) {
-    unsigned int rp = it.first;
-    unsigned int rpIdx = rp % 10;
-    unsigned int group = 0;
-
-    if (rpIdx == 0 || rpIdx == 4)
-      group = 1;
-    if (rpIdx == 1 || rpIdx == 5)
-      group = 2;
-    if (rpIdx == 2 || rpIdx == 3)
-      group = 3;
-
-    recoId  = reco;
-    eventId = iEvent.id().event();
-    eventSize = input->size();
-    rpID = rp;
-    arm  = rp/100;
-    groupId = group;
-
-    exportHitsFromLineToFFlatRoot(it.second.uLines);
-    exportHitsFromLineToFFlatRoot(it.second.vLines);
-  }
-}
 
 
 DemoAnalyzer::~DemoAnalyzer(){
   if(write_to_file == 1){
     oneEventFile.close();
   }
-
-  T->Print();
-  f->Write();
-  delete f;
 }
 
 /*
@@ -260,9 +198,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   int input_count = 0;
 
   int eventId = iEvent.id().event();
-  if(eventId == 11101){ 
-    exportToFlatRoot(iEvent);
-  }
 
 
   for (auto it : *input)
@@ -318,10 +253,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       max_vLines = vLinesNumber;
     }
     
-    // FILLING HISTOGRAMS
-    
-    // vLinesHisto->Fill(vLinesNumber);
-    // uLinesHisto->Fill(uLinesNumber);
   
 
     if (!combineVerticalHorizontalRPs)
@@ -400,10 +331,6 @@ void printGeometryUtilityData(GeometryUtility *geometryUtility){
 void 
 DemoAnalyzer::beginJob()
 {
-
-  // MyFile = new TFile("Event.root","NEW");
-  // if ( MyFile->IsOpen() ) printf("File opened successfully\n");
-
   printGeometryUtilityData(geometryUtility);
 }
 
@@ -411,7 +338,6 @@ DemoAnalyzer::beginJob()
 void 
 DemoAnalyzer::endJob() 
 {
-  delete MyFile;
   // std::ostringstream oss;
   
   // for(int i=1; i<200001; i++){

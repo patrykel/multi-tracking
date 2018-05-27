@@ -26,16 +26,6 @@
 #include <sstream>
 #include <string>
 
-// HISTOGRAMS
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h" 
-#include "TH1.h"
-
-// ROOT FLAT FILE
-#include "TFile.h"
-#include "TTree.h"
-#include "TSystemDirectory.h"
-
 
 class DemoAnalyzer : public edm::EDAnalyzer {
    public:
@@ -49,9 +39,6 @@ class DemoAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;     // method called for each event
       virtual void endJob() override;                                               // method called once each job just after ending the event loop
       
-      virtual void exportToFlatRoot(const edm::Event &iEvent);  
-      virtual void exportHitsFromLineToFFlatRoot(std::vector<RPRecognizedPatterns::Line> &lines);
-
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;    // method called when starting to processes a run
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;      // method called when ending the processing of a run
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;    // method called when starting to processes a luminosity block
@@ -70,20 +57,8 @@ class DemoAnalyzer : public edm::EDAnalyzer {
       // TMP VARIABLES
       int write_to_file;
       int rps_in_event[200001] = {0};
-      TFile *MyFile; // Event.root
 
-      // FLAT ROOT
-      ofstream statisticsFile;
-      TFile *f = new TFile("reco_0_flat.root", "recreate");
-      TTree *T = new TTree("T", "reco_0_flat");
 
-      int reco = 101;
-      Int_t recoId, eventId,  eventSize,  rpID,  arm,  groupId,  siliconID;
-      Float_t position;
-
-      
-
-      TH1D *vLinesHisto, *uLinesHisto;
       GeometryUtility *geometryUtility;
       ofstream oneEventFile;  // to create csv file for event dump
 };
