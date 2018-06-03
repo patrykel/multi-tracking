@@ -19,10 +19,16 @@
 #include <iostream>
 #include <sstream>
 
+#include "TTree.h"
+#include "TFile.h"
+#include "TSystemDirectory.h"
 
 class GeometryUtility {
 
-public:
+  public:
+
+    explicit GeometryUtility();
+    ~GeometryUtility();
 
     static const unsigned int arm_number = 2;
     static const unsigned int station_per_arm = 2;
@@ -56,6 +62,16 @@ public:
     // Point getCenter(RPRecoHit recoHit);
     // Direction getReadoutDirection(RPRecoHit recoHit);
     // Direction getPerpendicularDirection(GeometryUtility::Direction direction);
+
+
+    // ROOT FILE RELATED
+    void prepareRootFile();
+    void closeRootFile();
+    void exportGeometryToRoot();
+    TFile *f;
+    TTree *T;
+    Int_t detIdRoot;
+    Float_t xRoot, yRoot, zRoot, dxRoot, dyRoot;
 
     void printGeometryUtilityData();
     PossibleHitPoint getIntersection(RPRecoHit uHit, RPRecoHit vHit);

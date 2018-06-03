@@ -45,8 +45,8 @@ class RecoToFlatRootAnalyzer : public edm::EDAnalyzer {
       // TO DO: UNHARDCODE IT
       TFile *f = new TFile("reco_0_flat.root", "recreate");
       TTree *T = new TTree("T", "reco_0_flat");
-      Int_t recoId = 0;
-
-      Int_t eventId,  eventSize,  rpID,  arm,  groupId,  siliconID;
-      Float_t position;
+      
+      Int_t recoID = 0;
+      Int_t eventID, armID, groupID, rpID, uLineSize, vLineSize, siliconID;
+      Float_t position, sigma_;
 };

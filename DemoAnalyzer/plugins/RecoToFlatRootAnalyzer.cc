@@ -14,14 +14,18 @@ RecoToFlatRootAnalyzer::RecoToFlatRootAnalyzer(const edm::ParameterSet& ps)
 {
   // CREATING FLAT ROOT FILE WITH FIELDS:
   T->SetDirectory(f);
-  T->Branch("recoId", &recoId, "recoId/I");
-  T->Branch("eventId", &eventId, "eventId/I");
-  T->Branch("eventSize", &eventSize, "eventSize/I");
+
+  T->Branch("recoID", &recoID, "recoID/I");
+  T->Branch("eventID", &eventID, "eventID/I");
+  T->Branch("armID", &armID, "armID/I");
+  T->Branch("groupID", &groupID, "groupID/I");
   T->Branch("rpID", &rpID, "rpID/I");
-  T->Branch("arm", &arm, "arm/I");
-  T->Branch("groupId", &groupId, "groupId/I");
+  T->Branch("uLineSize", &uLineSize, "uLineSize/I");
+  T->Branch("vLineSize", &vLineSize, "vLineSize/I");
   T->Branch("siliconID", &siliconID, "siliconID/I");
   T->Branch("position", &position, "position/F");
+  T->Branch("sigma_", &sigma_, "sigma_/F");
+
 }
 
 RecoToFlatRootAnalyzer::~RecoToFlatRootAnalyzer(){
@@ -55,8 +59,10 @@ RecoToFlatRootAnalyzer::exportHitsFromLineToFFlatRoot(std::vector<RPRecognizedPa
   for(auto& line: lines){
     for(auto& hit: line.hits){
       unsigned int rawDetId = hit.DetId();
+      
       siliconID = siliconId(rawDetId);
-      position = hit.Position();
+      position  = hit.Position();
+      sigma_    = hit.Sigma();
       T->Fill();
     }
   }
@@ -72,20 +78,22 @@ RecoToFlatRootAnalyzer::exportToFlatRoot(const edm::Event &iEvent){
   for (auto it : *input) {
     unsigned int rp = it.first;
     unsigned int rpIdx = rp % 10;
-    unsigned int group = 0;
+
+    eventID = iEvent.id().event();
+    armID = rp/100; 
+    rpID = rp;
 
     if (rpIdx == 0 || rpIdx == 4)
-      group = 1;
+      groupID = 1;
     if (rpIdx == 1 || rpIdx == 5)
-      group = 2;
+      groupID = 2;
     if (rpIdx == 2 || rpIdx == 3)
-      group = 3;
+      groupID = 3;
+    if (armID == 1)
+      groupID += 3;
 
-    eventId = iEvent.id().event();
-    eventSize = input->size();
-    rpID = rp;
-    arm  = rp/100;
-    groupId = group;
+    uLineSize = it.second.uLines.size();
+    vLineSize = it.second.vLines.size();
 
     exportHitsFromLineToFFlatRoot(it.second.uLines);
     exportHitsFromLineToFFlatRoot(it.second.vLines);

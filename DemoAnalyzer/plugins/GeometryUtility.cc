@@ -16,6 +16,59 @@
 #include <iomanip>
 
 
+GeometryUtility::GeometryUtility(){
+}
+
+
+GeometryUtility::~GeometryUtility(){
+}
+
+
+void 
+GeometryUtility::prepareRootFile(){
+  // CREATING FLAT ROOT FILE WITH FIELDS:
+  f = new TFile("det_geometry.root", "recreate");
+  T = new TTree("T", "silicon_detectors");
+
+  T->SetDirectory(f);
+  T->Branch("detId", &detIdRoot, "detId/I");
+  T->Branch("x", &xRoot, "x/F");
+  T->Branch("y", &yRoot, "y/F");
+  T->Branch("z", &zRoot, "z/F");
+  T->Branch("dx", &dxRoot, "dx/F");
+  T->Branch("dy", &dyRoot, "dy/F");
+}
+
+void 
+GeometryUtility::closeRootFile(){
+  T->Print();
+  f->Write();
+  delete f;
+}
+
+void 
+GeometryUtility::exportGeometryToRoot(){
+  prepareRootFile();
+
+  for(int a_i = 0; a_i < 2; a_i++){
+    for(int s_i = 0; s_i < 3; s_i += 2){
+      for(int r_i = 0; r_i < 6; r_i++){
+        for(int d_i = 0; d_i < 10; d_i++){
+          detIdRoot = a_i * 1000 + s_i * 100 + r_i * 10 + d_i;
+          xRoot = getX(a_i, s_i, r_i, d_i);
+          yRoot = getY(a_i, s_i, r_i, d_i);
+          zRoot = getZ(a_i, s_i, r_i, d_i);
+          dxRoot = getDx(a_i, s_i, r_i, d_i);
+          dyRoot = getDy(a_i, s_i, r_i, d_i);
+          T->Fill();
+        }
+      }
+    }
+  }
+
+  closeRootFile();
+}
+
 
 void
 GeometryUtility::printGeometryUtilityData(){
@@ -55,6 +108,7 @@ GeometryUtility::printGeometryUtilityData(){
   std::string text_log = oss.str();
   edm::LogInfo("Demo") << text_log;
 }
+
 
 GeometryUtility::Point GeometryUtility::getCenter(RPRecoHit recoHit) {
     unsigned int rawId = recoHit.DetId();

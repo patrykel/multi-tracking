@@ -12,11 +12,13 @@
 
 RecoLoggingAnalyzer::RecoLoggingAnalyzer(const edm::ParameterSet& ps)
 {
-    geometryUtility = new GeometryUtility();
+  geometryUtility = new GeometryUtility();
+  geometryUtility -> exportGeometryToRoot();
 }
 
 
 RecoLoggingAnalyzer::~RecoLoggingAnalyzer(){
+  delete geometryUtility;
 }
 
 void 
