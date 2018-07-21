@@ -31,5 +31,9 @@
 *.out
 *.app
 
-# Root
-.root
+# Storage
+*.root
+*.csv
+
+# Pyc
+*.pyc

@@ -42,8 +42,11 @@ class RecoHistAnalyzer : public edm::EDAnalyzer {
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;      // method called when ending the processing of a luminosity block      
 
       // member data
-      TH1D *vLinesHisto, *uLinesHisto;
+      TH1D *vLinesHisto, *uLinesHisto, *maxLinesHisto;
       int nbinsx_; 
       double xlow_; 
       double xup_;
+
+      unsigned int max_u_line[200005] = {0};
+      unsigned int max_v_line[200005] = {0};
 };

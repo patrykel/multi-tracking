@@ -26,7 +26,12 @@ RecoToFlatRootAnalyzer::RecoToFlatRootAnalyzer(const edm::ParameterSet& ps)
   T->Branch("position", &position, "position/F");
   T->Branch("sigma_", &sigma_, "sigma_/F");
 
+  T->Branch("uv_line_a", &uv_line_a, "uv_line_a/F");
+  T->Branch("uv_line_b", &uv_line_b, "uv_line_b/F");
+  T->Branch("uv_line_w", &uv_line_w, "uv_line_w/F");
+
 }
+
 
 RecoToFlatRootAnalyzer::~RecoToFlatRootAnalyzer(){
   T->Print();
@@ -57,6 +62,12 @@ RecoToFlatRootAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 void 
 RecoToFlatRootAnalyzer::exportHitsFromLineToFFlatRoot(std::vector<RPRecognizedPatterns::Line> &lines){
   for(auto& line: lines){
+
+    // SET U/V LINE VALUES - LOOK FOR RecoTotemRP/RPRecoDataFormats/interface/RPRecognizedPatterns.h
+    uv_line_a = line.a; 
+    uv_line_b = line.b; 
+    uv_line_w = line.w; 
+
     for(auto& hit: line.hits){
       unsigned int rawDetId = hit.DetId();
       

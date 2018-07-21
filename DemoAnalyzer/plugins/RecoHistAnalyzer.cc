@@ -12,14 +12,16 @@
 #include "Demo/DemoAnalyzer/interface/RecoHistAnalyzer.h"
 
 RecoHistAnalyzer::RecoHistAnalyzer(const edm::ParameterSet& ps) :
-nbinsx_(ps.getUntrackedParameter<int>("nbinsx", 50)),
+nbinsx_(ps.getUntrackedParameter<int>("nbinsx", 10)),
 xlow_(ps.getUntrackedParameter<double>("xlow", 0.0)),
-xup_(ps.getUntrackedParameter<double>("xup", 50.0))
+xup_(ps.getUntrackedParameter<double>("xup", 10.0))
 {
     edm::Service<TFileService> fs;   
 
     vLinesHisto = fs->make<TH1D>("vLines" , "VLINES" , nbinsx_ , xlow_ , xup_ );   // TH1D (const char *name, const char *title, Int_t nbinsx, Double_t xlow, Double_t xup)
     uLinesHisto = fs->make<TH1D>("uLines" , "ULINES" , nbinsx_ , xlow_ , xup_ );
+
+    maxLinesHisto = fs->make<TH1D>("maxUVLines" , "MaxUVLines" , nbinsx_ , xlow_ , xup_ );
 
 }
 
@@ -48,9 +50,20 @@ RecoHistAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     unsigned int uLinesNumber = it.second.uLines.size();
     unsigned int vLinesNumber = it.second.vLines.size();
 
-    // FILLING HISTOGRAMS
-    vLinesHisto->Fill(vLinesNumber);
-    uLinesHisto->Fill(uLinesNumber);
+    unsigned int eventID = iEvent.id().event();
+
+    if(max_u_line[eventID] < uLinesNumber){
+      max_u_line[eventID] = uLinesNumber;
+    }
+
+    if(max_v_line[eventID] < vLinesNumber){
+      max_v_line[eventID] = vLinesNumber;
+    }
+
+    // // FILLING HISTOGRAMS
+    // vLinesHisto->Fill(vLinesNumber);
+    // uLinesHisto->Fill(uLinesNumber);
+
   }
   
 
@@ -69,6 +82,20 @@ RecoHistAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 void 
 RecoHistAnalyzer::endJob() 
 {
+  for(int i = 1; i <= 200000; i++){
+    vLinesHisto->Fill(max_v_line[i]);
+    uLinesHisto->Fill(max_u_line[i]);
+
+    unsigned int max_of_max;
+    if(max_v_line[i] > max_u_line[i]){
+      max_of_max = max_v_line[i];
+    } else {
+      max_of_max = max_u_line[i];
+    }
+
+    maxLinesHisto->Fill(max_of_max);
+
+  } 
 }
 
 // ------------ method called when starting to processes a run  ------------
