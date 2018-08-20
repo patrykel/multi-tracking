@@ -88,7 +88,7 @@ RecoLoggingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     unsigned int uLinesNumber = it.second.uLines.size();
     unsigned int vLinesNumber = it.second.vLines.size();
 
-    if(uLinesNumber == 2 && vLinesNumber == 2){ 
+    if(uLinesNumber == 1 && vLinesNumber == 1){ 
       std::ostringstream oss;
       oss << "RP = " << rp << "\t arm = " << arm << "\t rpIdx = " << rpIdx << "\n";
 

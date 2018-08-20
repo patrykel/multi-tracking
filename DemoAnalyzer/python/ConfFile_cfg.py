@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 # Specify the maximum events to simulate
-process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(20000) )
+# process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(200) )
 
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -46,10 +46,15 @@ process.recoCSV = cms.EDAnalyzer('RecoToCSVAnalyzer',
                                  fill_name=cms.string('2015_10_17_fill4510')
                                  )
 
+process.recoCSVLineAB = cms.EDAnalyzer('RecoToCSVWithABLinesAnalyzer',
+                                  recoId = cms.string('0'),
+                                  fill_name=cms.string('2015_10_17_fill4510'))
+
 process.p = cms.Path(
+    process.recoCSVLineAB
     # process.recoLogger
     # process.demo
     # process.recoHist 
-    process.recoToFlatRoot
+    # process.recoToFlatRoot
     # process.recoCSV
 )
