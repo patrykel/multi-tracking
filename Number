@@ -1,0 +1,65 @@
+diff --git a/DemoAnalyzer/plugins/RecoLoggingAnalyzer.cc b/DemoAnalyzer/plugins/RecoLoggingAnalyzer.cc
+index 006e880..713739e 100644
+--- a/DemoAnalyzer/plugins/RecoLoggingAnalyzer.cc
++++ b/DemoAnalyzer/plugins/RecoLoggingAnalyzer.cc
+@@ -88,7 +88,7 @@ RecoLoggingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
+     unsigned int uLinesNumber = it.second.uLines.size();
+     unsigned int vLinesNumber = it.second.vLines.size();
+ 
+-    if(uLinesNumber == 1 && vLinesNumber == 1){ 
++    if(uLinesNumber != 1 && vLinesNumber != 1){ 
+       std::ostringstream oss;
+       oss << "RP = " << rp << "\t arm = " << arm << "\t rpIdx = " << rpIdx << "\n";
+ 
+diff --git a/DemoAnalyzer/python/ConfFile_cfg.py b/DemoAnalyzer/python/ConfFile_cfg.py
+index fb64925..c927b3b 100644
+--- a/DemoAnalyzer/python/ConfFile_cfg.py
++++ b/DemoAnalyzer/python/ConfFile_cfg.py
+@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
+ process = cms.Process("Demo")
+ 
+ # Specify the maximum events to simulate
+-# process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(200) )
++# process.maxEvents = cms.untracked.PSet( input=cms.untracked.int32(1000))
+ 
+ # initialize MessageLogger and output report
+ process.load("FWCore.MessageLogger.MessageLogger_cfi")
+@@ -14,7 +14,7 @@ process.MessageLogger.cerr.INFO = cms.untracked.PSet(
+ )
+ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
+ 
+-# process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
++process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
+ 
+ process.source = cms.Source("PoolSource",
+                             # replace 'myfile.root' with the source file you want to use
+@@ -22,6 +22,7 @@ process.source = cms.Source("PoolSource",
+                                 # 'file:/afs/cern.ch/cms/Tutorials/TWIKI_DATA/TTJets_8TeV_53X.root'
+                                 # 'root://eosuser.cern.ch//eos/user/p/plawski/totem/data/offline/2015/90m/Reco/version2_resynch/4510/9985/reco_0.root',
+                                 # 'root://eosuser.cern.ch//eos/user/p/plawski/totem/data/offline/2015/90m/Reco/version2_resynch/4510/9985/reco_1.root'
++                                # 'file:/afs/cern.ch/user/p/plawski/cmssw_7_0_4_src/reco_45.root'
+                                 'file:/afs/cern.ch/user/p/plawski/cmssw_7_0_4_src/reco_0.root'
+                             )
+                             )
+@@ -48,10 +49,16 @@ process.recoCSV = cms.EDAnalyzer('RecoToCSVAnalyzer',
+ 
+ process.recoCSVLineAB = cms.EDAnalyzer('RecoToCSVWithABLinesAnalyzer',
+                                   recoId = cms.string('0'),
+-                                  fill_name=cms.string('2015_10_17_fill4510'))
++                                  fill_name=cms.string('2015_10_17_fill4510-reco0'))
++
++process.recoMultiCSV = cms.EDAnalyzer('RecoMultiToCSVAnalyzer',
++  recoId = cms.string('0'),
++  fill_name=cms.string('2015_10_17_fill4510-reco0')
++  )
+ 
+ process.p = cms.Path(
+-    process.recoCSVLineAB
++    process.recoMultiCSV
++    # process.recoCSVLineAB
+     # process.recoLogger
+     # process.demo
+     # process.recoHist 
+diff --git a/DemoAnalyzer/python/ConfFile_cfg.pyc b/DemoAnalyzer/python/ConfFile_cfg.pyc
+index edb2790..27c88cd 100644
+Binary files a/DemoAnalyzer/python/ConfFile_cfg.pyc and b/DemoAnalyzer/python/ConfFile_cfg.pyc differ
